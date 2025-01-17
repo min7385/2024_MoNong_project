@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.future.blue.auth.dao.IAuthDAO">
+	
+	<select id="loadUserByMemId" parameterType="String"  resultType="AuthVO" >
+		SELECT mem_id, mem_pass, mem_role, mem_name, mem_phone, mem_nic, mem_profile, create_date
+		FROM member
+		WHERE mem_id = #{memId}
+	</select>
+	
+	<insert id="registerUser" parameterType="AuthDTO">
+        INSERT INTO member (mem_id, mem_pass, mem_name, mem_phone, mem_nic, mem_addr)
+        VALUES (#{memId}, #{memPass}, #{memName}, #{memPhone}, #{memNic}, #{memAddr})
+    </insert>
+    
+    <select id="findByNameAndMail" parameterType="Map" resultType="AuthVO">
+    	SELECT mem_id, mem_pass, mem_role, mem_name, mem_phone, mem_nic, mem_profile, create_date
+		FROM member
+		WHERE mem_phone = #{memPhone}
+		AND mem_name = #{memName}
+    </select>
+    
+    <select id="findPassword" parameterType="Map" resultType="AuthVO">
+    	SELECT mem_id, mem_pass, mem_role, mem_name, mem_phone, mem_nic, mem_profile, create_date
+		FROM member
+		WHERE mem_id = #{memId}
+		AND mem_phone = #{memPhone}
+    </select>
+    
+    <update id="updatePassword" parameterType="Map">
+    	UPDATE member
+		SET mem_pass = #{memPass}
+		WHERE mem_id = #{memId}
+    </update>
+    	
+	<insert id='insertKakaoUser' parameterType="KakaoVO">
+		INSERT INTO member(mem_id
+						 , mem_name
+						 , mem_nic
+						 , mem_profile
+						 , mem_pass
+						 , mem_addr)
+		VALUES(#{memId}, #{memName}, #{memNic}, #{memProfile}, #{memPass}, #{memAddr})
+	</insert>
+	
+	<select id='loadUserByKakaoId' parameterType="String" resultType="KakaoVO">
+		SELECT mem_id, mem_pass, mem_role, mem_name, mem_phone, mem_nic, mem_profile, mem_addr, create_date
+		FROM member
+		WHERE mem_id = #{memId}
+	</select>
+    
+</mapper>

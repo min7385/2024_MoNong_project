@@ -1,0 +1,157 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #D8F6CE; 
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* 화면 높이 맞춤 */
+}
+
+/* Container */
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 90%;
+    max-width: 1200px;
+    background: white;
+    padding: 40px; /* 크기 증가 */
+    padding-top: 140px;
+    padding-bottom: 140px;
+    border-radius: 15px;
+    box-shadow: 0 6px 9px rgba(0, 0, 0, 0.2); /* 더 두드러지게 */
+}
+
+/* Logo Section */
+.logo-section {
+    text-align: center;
+    flex: 1;
+}
+
+.logo {
+    width: 280px;
+    height: 240px;
+    cursor: pointer;
+}
+
+.logo-text {
+    margin-top: 10px;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+/* Form Section */
+.form-section {
+    flex: 1;
+}
+
+.login-form {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.sign-in-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #9FF781; /* 화사한 하늘색 */
+    color: #6E6E6E;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+
+.sign-in-btn:hover {
+    background-color: #82FA58; /* 더 짙은 하늘색 */
+}
+
+.otherBtn{
+	border-radius: 5px;
+}
+
+.forgot-password, .signup, .partition, .forgot-id {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #5dade2; /* 화사한 하늘색 */
+    text-decoration: none;
+}
+
+.forgot-password:hover, .signup:hover, .forgot-id:hover {
+    text-decoration: underline;
+}
+
+/* 공통 버튼 스타일 */
+button {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* 주소 삭제 버튼 스타일 */
+#delete-address {
+    background-color: #e74c3c; /* 빨간색 */
+    color: white;
+    margin-left: 10px; /* 주소와 약간의 간격 */
+}
+
+#delete-address:hover {
+    background-color: #c0392b; /* 더 짙은 빨간색 */
+    transform: scale(1.1); /* 살짝 확대 효과 */
+}
+
+/* 주소 찾기 버튼 스타일 */
+#find-address {
+    background-color: #5dade2; /* 화사한 하늘색 */
+    color: white;
+    margin-top: 10px; /* 위 요소와 간격 */
+}
+
+#find-address:hover {
+    background-color: #3498db; /* 더 짙은 하늘색 */
+    transform: scale(1.1); /* 살짝 확대 효과 */
+}
+
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        padding: 20px; /* 크기 증가 */
+    }
+
+    .form-section {
+        margin-top: 20px;
+    }
+}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.future.blue.admin.dao.IAdminDAO">
+	<select id="loadUserByNum" parameterType="Integer" resultType="AdminVO">
+		SELECT ROWNUM as rnum, A.*
+		FROM (SELECT
+		      mem_id
+		     , mem_name
+		     , mem_phone
+		     , mem_nic
+		     , mem_addr
+		     , mem_profile
+		     , create_date
+		FROM member
+		WHERE mem_role = 'USER'
+		ORDER BY create_date DESC) A
+		<if test="i != null">
+        	WHERE ROWNUM &lt;= #{i}
+    	</if>
+		ORDER BY rnum
+	</select>
+	
+	<select id="loadProdCnt" parameterType="Integer" resultType="CntVO">
+	    SELECT ROWNUM as rnum
+		     , a.*
+		FROM(
+			 SELECT TRIM(REGEXP_REPLACE(prod_category, '\(.*?\)','')) as prod_category
+			      , COUNT(CASE WHEN prod_status = 'C' THEN 1 END) AS com_count
+		 	      , COUNT(CASE WHEN prod_status != 'C' THEN 1 END) AS other_count
+		  	 FROM products
+			 GROUP BY TRIM(REGEXP_REPLACE(prod_category, '\(.*?\)',''))
+			 ORDER BY COUNT(TRIM(REGEXP_REPLACE(prod_category, '\(.*?\)',''))) DESC) a
+	    <if test="i != null">
+        	WHERE ROWNUM &lt;= #{i}
+    	</if>
+	</select>
+	
+	<delete id="deleteMember" parameterType="String">
+		DELETE FROM member
+		WHERE mem_id = #{memId}
+	</delete>
+
+</mapper>

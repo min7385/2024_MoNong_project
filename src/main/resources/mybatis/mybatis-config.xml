@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+	  <!-- Oracle 테이블의 컬럼이 mem_id 이고, DTO의 필드변수가 memId 일때 매칭이 가능하게 하는 옵션 -->
+	  <setting name="mapUnderscoreToCamelCase" value="true"/> 
+	  <!-- null -->
+	  <setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+	
+	<typeAliases>
+		<typeAlias type="com.future.blue.product.vo.ProductVO" alias="ProdVO"/>
+		<typeAlias type="com.future.blue.board.vo.BoardVO" alias="BoardVO"/>
+		<typeAlias type="com.future.blue.diary.vo.DiaryVO" alias="DiaryVO"/>
+		<typeAlias type="com.future.blue.product.vo.PhotoVO" alias="PhotoVO"/>
+		<typeAlias type="com.future.blue.purchase.vo.RoomVO" alias="RoomVO"/>
+		<typeAlias type="com.future.blue.purchase.vo.ChatVO" alias="ChatVO"/>
+		<typeAlias type="com.future.blue.product.vo.AutoCompleteVO" alias="AutoCompleteVO"/>
+		<typeAlias type="com.future.blue.market.vo.MarketVO" alias="MarketVO"/>
+		<typeAlias type="com.future.blue.tips.vo.TipsVO" alias="TipsVO"/>
+		<typeAlias type="com.future.blue.auth.vo.AuthVO" alias="AuthVO"/>
+		<typeAlias type="com.future.blue.auth.dto.AuthDTO" alias="AuthDTO"/>
+		<typeAlias type="com.future.blue.purchase.vo.ChatListVO" alias="ChatListVO"/>
+		<typeAlias type="com.future.blue.product.vo.CropQualityVO" alias="CropQualityVO"/>
+		<typeAlias type="com.future.blue.mypage.vo.MypageVO" alias="MypageVO"/>
+		<typeAlias type="com.future.blue.mypage.vo.PointVO" alias="PointVO"/>
+		<typeAlias type="com.future.blue.auth.vo.KakaoVO" alias="KakaoVO"/>
+		<typeAlias type="com.future.blue.crop.vo.CropVO" alias="CropVO"/>
+		<typeAlias type="com.future.blue.purchase.vo.ReviewVO" alias="ReviewVO"/>
+		<typeAlias type="com.future.blue.mypage.vo.MypageChatVO" alias="MypageChatVO"/>
+		<typeAlias type="com.future.blue.mypage.vo.MypageTradeVO" alias="MypageTradeVO"/>
+		<typeAlias type="com.future.blue.mypage.vo.MypageReviewVO" alias="MypageReviewVO"/>
+		<typeAlias type="com.future.blue.admin.vo.AdminVO" alias="AdminVO"/>
+		<typeAlias type="com.future.blue.admin.vo.CntVO" alias="CntVO"/>
+		
+	</typeAliases>
+	
+</configuration>

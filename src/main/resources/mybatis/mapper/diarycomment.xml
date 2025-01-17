@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.future.blue.diary.dao.IDiaryCommentDAO">
+
+	<!-- 1. 특정 diary에 대한 모든 댓글 목록을 가져오기 -->
+	<select id="getCommentsByDiaryId" parameterType="int"
+		resultType="com.future.blue.diary.vo.CommentVO">
+		SELECT
+		COMMENT_ID,
+		DIARY_ID,
+		COMMENT_CONTENT,
+		CREATE_DT,
+		UPDATE_DT,
+		PARENT_COMMENT_ID,
+		USE_YN,
+		MEM_ID
+		FROM DIARY_COMMENTS
+		WHERE DIARY_ID = #{diaryId}
+		ORDER BY CREATE_DT DESC
+	</select>
+
+	<!-- 2. 댓글 생성 parameterType="map" 대신 파라미터 여러 개를 받는 경우, @Param("...")을 썼으므로 
+		내부적으로 Map에 매핑되어 넘어옵니다. 그러므로 parameterType="map" 그대로 사용 가능합니다. -->
+	<insert id="insertComment" parameterType="map">
+		INSERT INTO DIARY_COMMENTS (
+		COMMENT_ID,
+		DIARY_ID,
+		COMMENT_CONTENT,
+		CREATE_DT,
+		PARENT_COMMENT_ID,
+		USE_YN,
+		MEM_ID
+		)
+		VALUES (
+		SEQ_DIARY_COMMENTS.NEXTVAL, -- ★ 여기서 시퀀스를 사용하려고 함
+		#{diaryId},
+		#{commentContent},
+		SYSDATE,
+		<choose>
+			<when test="parentCommentId != null">#{parentCommentId}</when>
+			<otherwise>NULL</otherwise>
+		</choose>
+		,
+		'Y',
+		#{memId}
+		)
+	</insert>
+
+
+	<!-- 3. 댓글 삭제 (USE_YN 'N'으로 업데이트) -->
+	<update id="deleteComment" parameterType="int">
+		UPDATE DIARY_COMMENTS
+		SET USE_YN = 'N'
+		WHERE COMMENT_ID = #{commentId}
+	</update>
+
+	<!-- 4. 댓글 수정 (COMMENT_CONTENT 수정) -->
+	<update id="updateComment" parameterType="map">
+		UPDATE DIARY_COMMENTS
+		SET
+		COMMENT_CONTENT = #{commentContent},
+		UPDATE_DT = SYSDATE
+		WHERE
+		COMMENT_ID = #{commentId}
+	</update>
+
+</mapper>

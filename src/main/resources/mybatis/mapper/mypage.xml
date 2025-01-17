@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.future.blue.mypage.dao.IMypageDAO">
+	
+	<select id="getMyData" parameterType="String" resultType="MypageVO" >
+		SELECT mem_id
+			 , mem_pass
+			 , mem_role
+			 , mem_name
+			 , mem_phone
+			 , mem_addr
+			 , mem_reliability
+			 , mem_profile
+			 , mem_nic
+			 , create_date
+		FROM member
+		WHERE mem_id = #{memId}
+	</select>
+	
+	<select id="getMyPoint" parameterType="String" resultType="PointVO">
+		SELECT b.total_points
+		FROM member a, points b
+		WHERE a.mem_id = b.mem_id
+		AND a.mem_id = #{memId}
+	</select>
+	
+	<update id="profileUpload" parameterType="MypageVO">
+		UPDATE member
+		SET mem_profile = #{memProfile}
+		WHERE mem_id = #{memId}
+	</update>
+	
+	<update id='changeInfo' parameterType="MypageVO">
+		UPDATE member
+		SET mem_nic = #{memNic}
+		   ,mem_addr = #{memAddr}
+		   ,mem_phone = #{memPhone}
+		WHERE mem_id = #{memId}
+	</update>
+	
+	<select id="getChatData" parameterType="String" resultType="MypageChatVO">
+		SELECT t.tm_chat_id
+		     , m.mem_id
+		     , m.mem_nic
+		     , m.mem_addr
+		     , t.tm_date
+		     , p.prod_photo_path
+		     , t.tm_content
+		     , t.tm_content_type
+		     , c.chat_seller
+             , c.chat_buyer
+             , c.chat_prod_id
+             , pd.prod_category
+             , pd.prod_status
+		FROM trademsg t, chat c, member m, product_photos p, products pd
+		WHERE t.tm_chat_id = c.chat_id
+		AND p.prod_id = c.chat_prod_id
+		AND p.prod_id = pd.prod_id
+		AND (m.mem_id = c.chat_seller OR m.mem_id = c.chat_buyer)
+		AND t.tm_id = (SELECT MAX(t2.tm_id)
+		               FROM trademsg t2
+		               WHERE t2.tm_chat_id = c.chat_id)
+		AND p.prod_photo_id = (SELECT MIN(p2.prod_photo_id)
+		                       FROM product_photos p2
+		                       WHERE p2.prod_id = c.chat_prod_id)
+		AND (c.chat_seller = #{memId} OR c.chat_buyer = #{memId})
+		ORDER BY t.tm_date DESC		                       
+	</select>
+	
+	<select id="getTradeData" parameterType="String" resultType="MypageTradeVO">
+		SELECT m.mem_id
+			 , m.mem_nic
+			 , m.mem_addr
+			 , p.update_dt
+			 , p.prod_price
+			 , pp.prod_photo_path
+			 , p.prod_status
+			 , p.prod_id
+			 , p.prod_name
+		FROM member m, products p, product_photos pp
+		WHERE m.mem_id = p.prod_seller
+		AND p.prod_id = pp.prod_id
+		AND pp.prod_photo_id = (SELECT MIN(pp2.prod_photo_id)
+				                       FROM product_photos pp2
+				                       WHERE pp2.prod_id = p.prod_id)
+		AND m.mem_id = #{memId}
+		ORDER BY p.update_dt DESC
+	</select>
+	
+	<select id="getReviewData" parameterType="String" resultType="MypageReviewVO">
+		SELECT r.rev_id
+			 , m.mem_id
+			 , m.mem_nic
+			 , m.mem_profile
+			 , m.mem_addr
+			 , r.rev_writer
+			 , r.rev_target
+			 , r.rev_score
+			 , r.rev_content
+			 , r.rev_date
+			 , r.rev_prod_id
+			 , p.prod_category
+		FROM review r, member m, products p
+		WHERE (r.rev_writer = m.mem_id OR r.rev_target = m.mem_id)
+		AND r.rev_prod_id = p.prod_id
+		AND (r.rev_writer = #{memId} OR r.rev_target = #{memId})
+		AND m.mem_id != #{memId}
+	</select>
+	
+
+</mapper>

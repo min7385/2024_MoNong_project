@@ -1,0 +1,123 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    padding: 20px;
+}
+
+.market-container {
+    padding: 40px 20px;
+}
+
+/* 상단 선택된 데이터 */
+.selected-item {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 5%; /* 내부 패딩 조정 */
+    margin-right: 5%; /* 내부 패딩 조정 */
+    margin-left: 5%; /* 내부 패딩 조정 */
+    margin-bottom: 40px; /* 카드 섹션과 간격 */
+}
+
+.selected-image {
+    width: 400px;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 180px; /* 텍스트와 이미지 간 간격 */
+}
+
+.selected-info h3 {
+    font-size: 44px;
+    margin-bottom: 10px;
+}
+
+.selected-info p {
+    font-size: 26px;
+    margin-bottom: 5px;
+}
+
+/* 카드 섹션 */
+.card-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* 반응형 디자인 */
+@media screen and (max-width: 1024px) {
+    .item-card {
+        width: calc(100% / 3 - 20px); /* 태블릿에서 3개씩 */
+    }
+    
+    .selected-image {
+    width: 240px;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 40px;
+	}
+	
+	.selected-item {
+    margin-right: 0%;
+    margin-left: 0%;
+    margin-bottom: 10px;
+	}
+	
+	.selected-info h3 {
+    font-size: 28px;
+    margin-bottom: 4px;
+	}
+	
+	.selected-info p {
+	    font-size: 20px;
+	    margin-bottom: 5px;
+	}
+}
+
+
+@media screen and (max-width: 480px) {
+    .item-card {
+        width: 100%; /* 모바일에서 1개씩 */
+    }
+
+    .item-info {
+        font-size: 14px;
+    }
+    
+    .selected-image {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 20px; /* 텍스트와 이미지 간 간격 */
+	}
+	
+	.selected-item {
+    margin-right: 0%;
+    margin-left: 0%;
+    margin-bottom: 10px; /* 카드 섹션과 간격 */
+	}
+	
+	.selected-info h3 {
+    font-size: 24px;
+    margin-bottom: 4px;
+	}
+	
+	.selected-info p {
+	    font-size: 16px;
+	    margin-bottom: 5px;
+	}
+}

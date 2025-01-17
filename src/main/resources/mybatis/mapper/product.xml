@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.future.blue.product.dao.IProductDAO">
+
+	<!-- 
+    INSERT 문: PRODUCTS_SELL 테이블에 새 판매 정보를 추가합니다.
+    - SEQ_SELL.NEXTVAL을 사용하여 SELL_ID를 생성합니다.
+    - 입력 값:
+        - SELL_TITLE: 판매 제목
+        - SELL_CONTENTS: 판매 상세 내용
+        - MEM_ID: 회원 ID
+        - SELL_PRICE: 판매 가격
+        - SELL_REGION: 거래 희망 장소
+    - 기본값:
+        - SELL_YN: 'Y' (판매 활성화 상태)
+        - RESERVED_YN: 'N' (예약 여부)
+        - CREATE_DT, UPDATE_DT: 현재 날짜 (SYSDATE)
+	-->
+	<insert id="insertProdInfo" parameterType="ProdVO">
+	    <selectKey keyProperty="prodId" resultType="int" order="BEFORE">
+	        SELECT SEQ_PROD.NEXTVAL FROM dual
+	    </selectKey>
+		    INSERT INTO PRODUCTS (
+		        PROD_ID,
+		        PROD_NAME,
+		        PROD_CONTENT,
+		        PROD_SELLER,
+		        PROD_PRICE,
+		        PROD_STATUS,
+		        CREATE_DT,
+		        UPDATE_DT,
+		        PROD_PLACE,
+		        PROD_CATEGORY,
+		        LATITUDE, 
+		        LONGITUDE
+		    ) VALUES (
+		        #{prodId},
+		        #{prodName},
+		        #{prodContent},
+		        #{prodSeller},
+		        #{prodPrice},
+		        'S',
+		        SYSDATE,
+		        SYSDATE,
+		        #{prodPlace},
+		        #{prodCategory},
+		        #{latitude},
+		        #{longitude}
+		    )
+		</insert>
+		
+		<!-- 
+	    INSERT 문: PRODUCT_PHOTOS 테이블에 새 사진 정보를 추가합니다.
+	    - SEQ_PHOTO.NEXTVAL을 사용하여 PROD_PHOTO_ID를 생성합니다.
+	    - 입력 값:
+	        - PROD_PHOTO_PATH: 사진 경로
+	        - PHOTO_NAME: 사진 이름
+	        - PROD_ID: 관련된 제품 ID
+	    - 기본값:
+	        - CREATE_DT, UPDATE_DT: 현재 날짜 (SYSDATE)
+		-->
+		<insert id="insertPhoto" parameterType="PhotoVO">
+		    <selectKey keyProperty="prodPhotoId" resultType="int" order="BEFORE">
+		        SELECT SEQ_PHOTO.NEXTVAL FROM dual
+		    </selectKey>
+			    INSERT INTO PRODUCT_PHOTOS (
+			        PROD_PHOTO_ID,
+			        CREATE_DT,
+			        UPDATE_DT,
+			        PROD_PHOTO_PATH,
+			        PHOTO_NAME,
+			        PROD_ID
+			    ) VALUES (
+			        #{prodPhotoId},
+			        SYSDATE,
+			        SYSDATE,
+			        #{prodPhotoPath},
+			        #{photoName},
+			        #{prodId}
+			    )
+		</insert>
+	
+	<!-- 최신순 기본 상품 목록 조회 -->
+	<select id="selectProductsByNewest" parameterType="map" resultType="ProdVO">
+	    SELECT a.PROD_ID, 
+	           a.PROD_NAME, 
+	           a.PROD_PRICE, 
+	           a.PROD_PLACE, 
+	           a.CREATE_DT
+	    FROM PRODUCTS a
+	    WHERE a.PROD_STATUS = 'S'
+	    <if test="query != null and query != ''">
+	        AND a.PROD_NAME LIKE '%' || #{query} || '%'
+	    </if>
+	    ORDER BY a.CREATE_DT DESC
+	    OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+	</select>
+		
+
+	<!-- 기본 상품 목록 조회 -->
+	<select id="selectProducts" parameterType="map" resultType="ProdVO">
+	    SELECT a.PROD_ID, 
+	           a.PROD_NAME, 
+	           a.PROD_PRICE, 
+	           a.PROD_PLACE, 
+	           a.CREATE_DT,
+	           a.LATITUDE,
+	           a.LONGITUDE,
+	           ROUND(6371 * ACOS(
+	           COS(#{latitude} * (3.141592653589793 / 180)) * COS(a.LATITUDE * (3.141592653589793 / 180)) *
+	           COS((a.LONGITUDE - #{longitude}) * (3.141592653589793 / 180)) +
+	           SIN(#{latitude} * (3.141592653589793 / 180)) * SIN(a.LATITUDE * (3.141592653589793 / 180))
+	       ), 2) AS distance_km
+	    FROM PRODUCTS a
+	    WHERE a.PROD_STATUS = 'S'
+	    <if test="query != null and query != ''">
+	        AND a.PROD_NAME LIKE '%' || #{query} || '%'
+	    </if>
+	    ORDER BY distance_km ASC, a.CREATE_DT DESC
+	    OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+	</select>
+
+    <!-- PROD_ID로 첫 번째 사진 조회 -->
+    <select id="selectFirstPhotoByprodId" parameterType="int" resultType="PhotoVO">
+        SELECT PROD_PHOTO_ID,
+               PROD_PHOTO_PATH,
+               PHOTO_NAME,
+               PROD_ID
+        FROM PRODUCT_PHOTOS
+        WHERE PROD_ID = #{prodId}
+        ORDER BY PROD_PHOTO_ID
+        FETCH FIRST 1 ROWS ONLY
+    </select>
+    
+     <!-- 상품 상세 정보 조회 -->
+    <select id="selectProductDetails" parameterType="int" resultType="ProdVO">
+        SELECT p.PROD_ID,
+               p.PROD_SELLER,
+               p.PROD_NAME,
+               p.PROD_CONTENT,
+               p.PROD_PRICE,
+               p.PROD_PLACE,
+               p.CREATE_DT,
+               p.PROD_CATEGORY,
+               m.MEM_PROFILE,
+               m.MEM_NIC,
+               m.MEM_RELIABILITY
+        FROM PRODUCTS p
+        JOIN MEMBER m ON p.PROD_SELLER = m.MEM_ID
+        WHERE p.PROD_ID = #{prodId}
+    </select>
+
+    <!-- 상품 사진 목록 조회 -->
+    <select id="selectProductPhotos" parameterType="int" resultType="PhotoVO">
+        SELECT PROD_PHOTO_ID,
+               PROD_PHOTO_PATH,
+               PHOTO_NAME
+        FROM PRODUCT_PHOTOS
+        WHERE PROD_ID = #{prodId}
+        ORDER BY PROD_PHOTO_ID
+    </select>
+    
+    <!-- 자동완성텍스트 -->
+	<select id="autoText" parameterType="string" resultType="AutoCompleteVO">
+		SELECT AC_ID, CROP_TYPE, SALE_TITLE, SALE_CONTENT, POPULARITY, CREATE_DT, UPDATE_DT, USE_YN
+		FROM AUTO_COMPLETE
+		WHERE CROP_TYPE = #{cropType}
+		AND USE_YN = 'Y'
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+    
+    <!-- 영어 품목명(CROP_NAME_EN)을 기준으로 한글 품목명, 품질 등급, 품질 설명을 조회 -->
+    <select id="getCropMapping" parameterType="string" resultType="CropQualityVO">
+        SELECT  CROP_NAME_GPT,
+            	CROP_NAME_KR,
+            	QUALITY, 
+            	QUALITY_DESC
+        FROM 	CROP_QUALITY_MAPPING
+        WHERE 	CROP_NAME_EN = #{cropNameEn}
+    </select>
+
+</mapper>

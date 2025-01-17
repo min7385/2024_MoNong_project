@@ -1,0 +1,54 @@
+# .gitignore 파일 예시
+
+# 'static' 디렉토리 제외
+/src/main/webapp/resources/static/
+
+# 빌드된 파일들 제외
+/target/
+/build/
+
+# IntelliJ IDEA 프로젝트 설정 제외
+.idea/
+/*.iml
+
+# Eclipse 설정 파일 제외
+.project
+.classpath
+
+# OS별 파일 제외
+.DS_Store
+Thumbs.db
+
+# Java 빌드 출력 디렉토리
+/target/
+/build/
+
+# Eclipse 프로젝트 설정
+.project
+.classpath
+
+# IntelliJ IDEA 프로젝트 설정
+.idea/
+/*.iml
+
+# OS별 파일
+.DS_Store
+Thumbs.db
+
+# 로그 파일들
+*.log
+
+# Spring Boot에서 자동 생성되는 파일들
+*.jar
+*.war
+*.ear
+
+# Maven, Gradle 빌드 관련 파일들
+/.mvn/
+/.gradle/
+/target/
+/build/
+
+# 스프링 부트 실행 시 생성되는 파일들
+/.vscode/
+/*.log

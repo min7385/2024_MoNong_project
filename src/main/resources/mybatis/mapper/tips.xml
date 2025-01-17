@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.future.blue.tips.dao.ITipsDAO">
+
+	<select id="findSurveyData" parameterType="Map"
+		resultType="TipsVO">
+		SELECT
+		id,
+		kind,
+		start_date AS startDate,
+		end_date AS endDate,
+		crop_stage AS cropStage,
+		survey_region AS surveyRegion,
+		survey_reason AS surveyReason,
+		growth_condition AS growthCondition,
+		pest_disease AS pestDisease,
+		memo,
+		images
+		FROM CROP_SURVEY
+		WHERE kind = #{tipsVO.kind}
+		<if test="tipsVO.surveyRegion != '전체'">
+			AND survey_region LIKE '%' || #{tipsVO.surveyRegion} || '%'
+		</if>
+		ORDER BY start_date DESC
+		OFFSET #{offset} ROWS FETCH NEXT #{size} ROWS ONLY
+	</select>
+
+	<select id="countSurveyData" parameterType="TipsVO"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM CROP_SURVEY
+		WHERE kind = #{kind}
+		<if test="surveyRegion != '전체'">
+			AND survey_region LIKE '%' || #{surveyRegion} || '%'
+		</if>
+	</select>
+	<select id="findTipsById" parameterType="int"
+		resultType="TipsVO">
+		SELECT
+		id,
+		kind,
+		start_date AS startDate,
+		end_date AS endDate,
+		crop_stage AS cropStage,
+		survey_region AS surveyRegion,
+		survey_reason AS surveyReason,
+		growth_condition AS growthCondition,
+		pest_disease AS pestDisease,
+		memo,
+		images
+		FROM CROP_SURVEY
+		WHERE id = #{id}
+	</select>
+
+</mapper>

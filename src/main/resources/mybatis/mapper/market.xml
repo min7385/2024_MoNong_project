@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.future.blue.market.dao.IMarketDAO">
+    
+    <!-- resultMap을 사용하여 pdlt_path를 pdltPath에 매핑 -->
+    <resultMap id="MarketResultMap" type="MarketVO">
+        <result property="pdltPath" column="pdlt_path" />
+        <result property="prceRegYmd" column="prce_reg_ymd" />
+        <result property="pdltCode" column="pdlt_code" />
+        <result property="pdltNm" column="pdlt_nm" />
+        <result property="pdltCtgCode" column="pdlt_ctg_code" />
+        <result property="pdltCtgNm" column="pdlt_ctg_nm" />
+        <result property="dsbnStepActoUnitNm" column="dsbn_step_acto_unit_nm" />
+        <result property="avrgPrce" column="avrg_prce" />
+        <result property="spcsCode" column="spcs_code" />
+        <result property="spcsNm" column="spcs_nm" />
+        <result property="wsrtExmnSeCode" column="wsrt_exmn_se_code" />
+        <result property="exmnSeNm" column="exmn_se_nm" />
+        <result property="gradCode" column="grad_code" />
+        <result property="gradNm" column="grad_nm" />
+        <result property="dsbnStepActoWt" column="dsbn_step_acto_wt" />
+        <result property="tdyLwetPrce" column="tdy_lwet_prce" />
+        <result property="tdyMaxPrce" column="tdy_max_prce" />
+        <result property="etlLdgDt" column="etl_ldg_dt" />
+    </resultMap>
+    
+	<resultMap id="PricePredictionMap" type="MarketVO">
+	    <result property="prceRegYmd" column="prce_reg_ymd" />
+	    <result property="pdltCode" column="pdlt_code" />
+	    <result property="pdltNm" column="pdlt_nm" />
+	    <result property="avrgPrce" column="avrg_prce" />
+	</resultMap>
+
+
+    <!-- selectCode 쿼리 -->
+    <select id="selectCode" resultMap="MarketResultMap">
+        
+		SELECT  pdlt_ctg_code
+		      , pdlt_ctg_nm
+		      , TO_CHAR(TO_DATE(prce_reg_ymd,'YYYYMMDD'),'YYYY-MM-DD') AS prce_reg_ymd
+		FROM (
+				SELECT  pdlt_ctg_code
+				      , pdlt_ctg_nm
+				      , MAX(TO_NUMBER(prce_reg_ymd)) AS prce_reg_ymd
+				FROM daily_product_prices2
+				WHERE pdlt_ctg_code IN ('100', '200', '300', '400')
+				GROUP BY pdlt_ctg_code, pdlt_ctg_nm
+				ORDER BY pdlt_ctg_code
+			  )
+    </select>
+    
+    <!-- selectNm 쿼리 -->
+    <select id="selectNm" parameterType="MarketVO" resultMap="MarketResultMap">
+        SELECT DISTINCT pdlt_code, pdlt_nm
+        FROM daily_product_prices2
+        WHERE pdlt_ctg_code = #{pdltCtgCode}
+        AND   prce_reg_ymd = #{prceRegYmd}
+        ORDER BY pdlt_code, pdlt_nm
+    </select>
+    
+    <!-- searchProduct 쿼리 -->
+    <select id="searchProduct" parameterType="MarketVO" resultMap="MarketResultMap">
+		SELECT t1.*
+		     , (SELECT pdlt_path
+			        FROM PRODUCT_IMAGES2
+			        WHERE pdlt_nm = t1.pdlt_nm) AS pdlt_path
+	     FROM (
+				SELECT   a.prce_reg_ymd
+				       , a.wsrt_exmn_se_code
+				       , a.exmn_se_nm
+				       , a.pdlt_ctg_code
+					   , a.pdlt_ctg_nm
+					   , a.pdlt_code
+					   , a.pdlt_nm
+					   , a.dsbn_step_acto_wt
+					   , a.dsbn_step_acto_unit_nm
+				       , AVG(a.avrg_prce) AS avrg_prce
+				FROM daily_product_prices2 a
+				WHERE TO_DATE(a.prce_reg_ymd, 'YYYY-MM-DD')
+				BETWEEN TO_DATE(#{prceRegYmd}, 'YYYY-MM-DD') - INTERVAL '6' DAY AND TO_DATE(#{prceRegYmd}, 'YYYY-MM-DD')
+				AND a.pdlt_ctg_code = #{pdltCtgCode}
+				AND a.pdlt_code =#{pdltCode}
+				GROUP BY a.prce_reg_ymd
+				       , a.wsrt_exmn_se_code
+				       , a.exmn_se_nm
+						   , a.pdlt_code
+						   , a.pdlt_nm
+						   , a.dsbn_step_acto_wt
+						   , a.dsbn_step_acto_unit_nm
+						   , a.pdlt_ctg_code
+						   , a.pdlt_ctg_nm
+				ORDER BY a.exmn_se_nm, a.pdlt_nm,a.dsbn_step_acto_wt, a.dsbn_step_acto_unit_nm, a.prce_reg_ymd
+	     ) t1
+    </select>
+    
+     <select id="searchProductWeek" parameterType="MarketVO" resultMap="MarketResultMap">
+					SELECT   t1.wsrt_exmn_se_code
+					       , t1.exmn_se_nm
+					       , t1.pdlt_ctg_code
+					       , t1.pdlt_ctg_nm
+					       , t1.pdlt_code
+					       , t1.pdlt_nm
+					       , t1.dsbn_step_acto_wt
+					       , t1.dsbn_step_acto_unit_nm
+					       , t1.week_no||'주 전'       AS prce_reg_ymd
+					       , ROUND(AVG(t1.avg_prce),3) AS avrg_prce
+					       , (SELECT pdlt_path
+					          FROM PRODUCT_IMAGES2
+					          WHERE pdlt_nm = t1.pdlt_nm) AS pdlt_path
+					FROM (
+					        SELECT   a.wsrt_exmn_se_code
+					               , a.exmn_se_nm
+					               , a.pdlt_ctg_code
+					               , a.pdlt_ctg_nm
+					               , a.pdlt_code
+					               , a.pdlt_nm
+					               , a.dsbn_step_acto_wt
+					               , a.dsbn_step_acto_unit_nm
+					               , AVG(a.avrg_prce) AS avg_prce
+					               , CEIL((TO_DATE(#{prceRegYmd}, 'YYYY-MM-DD') - TO_DATE(a.prce_reg_ymd, 'YYYY-MM-DD') + 1) / 7) AS week_no
+					        FROM daily_product_prices2 a
+					        WHERE TO_DATE(a.prce_reg_ymd, 'YYYY-MM-DD')
+					        BETWEEN TO_DATE(#{prceRegYmd}, 'YYYY-MM-DD') - INTERVAL '35' DAY AND TO_DATE(#{prceRegYmd}, 'YYYY-MM-DD')
+					        AND a.pdlt_ctg_code = #{pdltCtgCode}
+				            AND a.pdlt_code =#{pdltCode}
+					        GROUP BY a.prce_reg_ymd
+					               , a.wsrt_exmn_se_code
+					               , a.exmn_se_nm
+					               , a.pdlt_code
+					               , a.pdlt_nm
+					               , a.dsbn_step_acto_wt
+					               , a.dsbn_step_acto_unit_nm
+					               , a.pdlt_ctg_code
+					               , a.pdlt_ctg_nm
+					     ) t1
+					GROUP BY t1.wsrt_exmn_se_code
+					       , t1.exmn_se_nm
+					       , t1.pdlt_ctg_code
+					       , t1.pdlt_ctg_nm
+					       , t1.pdlt_code
+					       , t1.pdlt_nm
+					       , t1.dsbn_step_acto_wt
+					       , t1.dsbn_step_acto_unit_nm
+					       , t1.week_no
+					ORDER BY t1.exmn_se_nm, t1.pdlt_nm, t1.dsbn_step_acto_wt, t1.dsbn_step_acto_unit_nm, t1.week_no DESC
+					
+     </select>
+    <!-- 예측 가격을 조회하는 쿼리 -->
+    <select id="PredictedProduct" parameterType="MarketVO" resultMap="PricePredictionMap">
+	    SELECT 
+	        dpp.prce_reg_ymd, 
+	        dpp.pdlt_nm,
+	        dpp.dsbn_step_acto_wt,
+	        dpp.dsbn_step_acto_unit_nm,
+	        AVG(dpp.avrg_prce) AS avg_avrg_prce,
+	        MAX(ar.ta_avg) AS ta_avg,
+	        MAX(ar.rn_day) AS rn_day,
+	        COUNT(DISTINCT oi.observation_point) AS observation_point_count
+	    FROM daily_product_prices2 dpp
+	    JOIN api_response ar
+	        ON dpp.prce_reg_ymd = ar.tm
+	    JOIN observation_info oi
+	        ON ar.stn = oi.observation_id
+	    WHERE ar.rn_day != '-9.0'
+	          AND ar.ta_avg != '-99.0'
+	          <if test="pdltCtgCode != null">
+	              AND dpp.pdlt_ctg_code = #{pdltCtgCode}
+	          </if>
+	          <if test="pdltCode != null">
+	              AND dpp.pdlt_code = #{pdltCode}
+	          </if>
+	          <if test="prceRegYmd != null">
+	              AND dpp.prce_reg_ymd = #{prceRegYmd}
+	          </if>
+	          AND pdlt_nm = #{pdltNm}
+	          AND spcs_nm LIKE '%(전체)%'
+	          AND exmn_se_nm = '도매'
+	          AND grad_nm = '상품'
+	    GROUP BY dpp.prce_reg_ymd, dpp.pdlt_nm, dpp.dsbn_step_acto_unit_nm, dpp.dsbn_step_acto_wt
+	    ORDER BY dpp.prce_reg_ymd ASC
+    </select>
+	
+    
+</mapper>

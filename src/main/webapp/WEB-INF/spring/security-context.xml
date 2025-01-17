@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+
+<!-- Root Context: defines shared resources visible to all other web components -->
+
+	<!-- 테스트용 (하드코딩 된 아이디 비밀번호로 로그인가능) / 사용 X, 다른걸로 하기엔 시간이... -->
+	<security:authentication-manager>
+	    <security:authentication-provider>
+	        <security:user-service>
+	            <security:user name="7JmA7Y28" password="{noop}6reA7Jes7JuM7JqU" authorities="ROLE_USER" />
+	        </security:user-service>
+	    </security:authentication-provider>
+	</security:authentication-manager>
+
+
+	<security:http use-expressions="true" entry-point-ref="unauthorizedEntryPoint">
+        <security:csrf disabled="true" />
+		
+		<!-- jwt 필터 사용 -->
+        <security:custom-filter before="FORM_LOGIN_FILTER" ref="jwtAuthenticationFilter"/>
+        
+        <!-- 인가 주소 설정 -->
+    	<security:intercept-url pattern="/auth/login" access="isAnonymous()" />
+        <security:intercept-url pattern="/auth/logout" access="hasAnyRole('ADMIN', 'USER')" />
+    	<security:intercept-url pattern="/css/**" access="permitAll" />
+    	<security:intercept-url pattern="/js/**" access="permitAll" />
+    	<security:intercept-url pattern="/assets/**" access="permitAll" />
+    	<security:intercept-url pattern="/static/**" access="permitAll" />
+    	<security:intercept-url pattern="/mypage/**" access="hasAnyRole('ADMIN', 'USER')" />
+    	<security:intercept-url pattern="/chat/**" access="hasAnyRole('ADMIN', 'USER')" />
+    	<security:intercept-url pattern="/admin/**" access="hasRole('ADMIN')" />
+    	<security:intercept-url pattern="/sell/**" access="hasAnyRole('ADMIN', 'USER')" />
+    	
+    	<!-- 로그인페이지 설징 / 로그인 실패 / 성공 시 이동 경로 -->
+    	<security:form-login login-page="/auth/login" default-target-url="/home" authentication-failure-url="/auth/login" />
+
+    </security:http>
+    
+    
+    <!-- 접근 거부 핸들러 -->
+    <bean id="unauthorizedEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+       <constructor-arg value="/auth/loginView" />
+    </bean>
+
+	<!-- jwt 필터 정의 -->
+	<bean id="jwtAuthenticationFilter" class="com.future.blue.auth.util.JwtAuthenticationFilter" />
+    
+    <!-- 비밀번호 암호화 -->
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+	
+</beans>

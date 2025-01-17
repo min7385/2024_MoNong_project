@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.future.blue.purchase.dao.IChatDAO">
+
+    <!-- 0) 채팅방 리스트 조회 -->
+    <select id="getRoomList" resultType="com.future.blue.purchase.vo.RoomVO">
+        SELECT CHAT_ID, CHAT_SELLER, CHAT_BUYER,
+               CHAT_PROD_ID, CHAT_STATUS, CREATE_DT, UPDATE_DT
+          FROM CHAT
+         ORDER BY UPDATE_DT DESC
+    </select>
+
+    <!-- 1) 기존 채팅방 조회 -->
+    <select id="findChatRoom" parameterType="com.future.blue.purchase.vo.RoomVO" resultType="String">
+        SELECT chat_id
+          FROM chat
+         WHERE chat_Seller  = #{chatSeller}
+           AND chat_Buyer   = #{chatBuyer}
+           AND chat_Prod_Id = #{chatProdId}
+    </select>
+
+    <!-- 2) 채팅방 생성 (시퀀스 SEQ_CHAT_NO.NEXTVAL) -->
+    <insert id="createRoom" parameterType="com.future.blue.purchase.vo.RoomVO">
+        <selectKey keyProperty="chatId" resultType="String" order="BEFORE">
+            SELECT SEQ_CHAT_NO.NEXTVAL FROM dual
+        </selectKey>
+        INSERT INTO CHAT (
+             CHAT_ID, CHAT_SELLER, CHAT_BUYER,
+             CHAT_PROD_ID, CHAT_STATUS, CREATE_DT, TM_STATUS
+        ) VALUES (
+             #{chatId}, #{chatSeller}, #{chatBuyer},
+             #{chatProdId}, 'A', SYSDATE, 'N'
+        )
+    </insert>
+
+    <!-- 3) 특정 채팅방 상세 정보 -->
+    <select id="getRoomDetails" parameterType="String" resultType="com.future.blue.purchase.vo.RoomVO">
+        SELECT a.chat_id,
+               a.chat_prod_id,
+               a.chat_seller,
+               a.chat_buyer,
+               a.chat_status,
+               a.TM_MEET_DATE,
+               a.TM_MEET_PLACE,
+               a.TM_PRICE,
+               a.TM_STATUS,
+               b.PROD_NAME,
+               b.PROD_CONTENT,
+               b.PROD_PRICE,
+               b.PROD_PLACE,
+               c.PROD_PHOTO_PATH,
+               d.MEM_RELIABILITY
+          FROM CHAT a
+          JOIN PRODUCTS b ON a.chat_prod_id = b.PROD_ID
+     LEFT JOIN (
+               SELECT PROD_ID, PROD_PHOTO_PATH
+                 FROM (
+                     SELECT PROD_ID, PROD_PHOTO_PATH,
+                            ROW_NUMBER() OVER (PARTITION BY PROD_ID ORDER BY PROD_PHOTO_ID ASC) AS RN
+                       FROM PRODUCT_PHOTOS
+                 )
+                WHERE RN = 1
+               ) c ON a.chat_prod_id = c.PROD_ID
+     LEFT JOIN MEMBER d ON a.chat_seller = d.MEM_ID
+         WHERE a.chat_id = #{chatId}
+    </select>
+
+    <!-- 4) 특정 채팅방의 메시지 목록 -->
+    <select id="getChatList" resultType="com.future.blue.purchase.vo.ChatVO">
+        SELECT a.TM_ID,
+               a.TM_CHAT_ID,
+               a.TM_SENDER,
+               a.TM_CONTENT,
+               a.TM_DATE,
+               a.TM_CONTENT_TYPE,
+               a.TM_IMG_PATH,
+               b.TM_MEET_DATE,
+               b.TM_MEET_PLACE,
+               b.TM_PRICE,
+               b.TM_STATUS
+          FROM TRADEMSG a
+          JOIN CHAT b ON a.TM_CHAT_ID = b.CHAT_ID
+         WHERE a.TM_CHAT_ID = #{chatId}
+         ORDER BY a.TM_DATE ASC
+    </select>
+
+    <!-- 5) 일반 메시지 insert (TEXT, IMG) -->
+    <insert id="insertChat" parameterType="com.future.blue.purchase.vo.ChatVO">
+        INSERT INTO TRADEMSG (
+            TM_ID, TM_CHAT_ID, TM_SENDER,
+            TM_CONTENT, TM_CONTENT_TYPE,
+            TM_DATE
+        ) VALUES (
+            SEQ_TM.NEXTVAL,
+            #{tmChatId},
+            #{tmSender},
+            #{tmContent},
+            #{tmContentType},
+            TO_DATE(#{tmDate}, 'YYYY-MM-DD HH24:MI:SS')
+        )
+    </insert>
+
+    <!-- 6) 상품 ID로 채팅방 리스트 조회 (ChatListVO) -->
+    <select id="selectChatListByProductId" resultType="ChatListVO" parameterType="int">
+        SELECT 
+            C.CHAT_ID,
+            C.CHAT_SELLER,
+            S.MEM_NIC       AS sellerNic, 
+            C.CHAT_BUYER,
+            B.MEM_NIC       AS buyerNic, 
+            B.MEM_ID        AS CHAT_BUYER,
+            B.MEM_PROFILE   AS buyerProfile, 
+            P.PROD_ID,
+            P.PROD_NAME,
+            C.CHAT_STATUS,
+            TO_CHAR(C.CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS createDt,
+            (
+                SELECT T2.TM_CONTENT
+                  FROM TRADEMSG T2
+                 WHERE T2.TM_CHAT_ID = C.CHAT_ID
+                   AND T2.TM_ID = (
+                       SELECT MAX(T3.TM_ID)
+                         FROM TRADEMSG T3
+                        WHERE T3.TM_CHAT_ID = C.CHAT_ID
+                   )
+            ) AS lastContent
+          FROM CHAT C
+          JOIN MEMBER S ON C.CHAT_SELLER = S.MEM_ID
+          JOIN MEMBER B ON C.CHAT_BUYER = B.MEM_ID
+          JOIN PRODUCTS P ON C.CHAT_PROD_ID = P.PROD_ID
+         WHERE C.CHAT_PROD_ID = #{prodId}
+         ORDER BY C.CREATE_DT DESC
+    </select>
+
+    <!-- ========== 약속/거래/후기 관련 ========== -->
+
+    <!-- (1) 약속잡기: CHAT 테이블 (tmStatus='REQUEST'), TRADEMSG(약속 메시지) -->
+    <update id="updateChatAppointment" parameterType="RoomVO">
+        UPDATE CHAT
+           SET TM_MEET_DATE  = TO_DATE(#{tmMeetDate}, 'YYYY-MM-DD HH24:MI'),
+               TM_MEET_PLACE = #{tmMeetPlace},
+               TM_STATUS     = 'REQUEST',
+               UPDATE_DT     = SYSDATE
+         WHERE CHAT_ID       = #{chatId}
+    </update>
+
+    <insert id="insertAppointmentMessage" parameterType="ChatVO">
+        INSERT INTO TRADEMSG (
+            TM_ID, TM_CHAT_ID, TM_SENDER,
+            TM_CONTENT, TM_CONTENT_TYPE,
+            TM_DATE
+        ) VALUES (
+            SEQ_TM.NEXTVAL,
+            #{tmChatId},
+            #{tmSender},
+            #{tmContent},
+            'APPOINTMENT',
+            SYSDATE
+        )
+    </insert>
+
+    <!-- (2) 약속 확인: tmStatus='R' -->
+    <update id="confirmAppointment" parameterType="RoomVO">
+        UPDATE CHAT
+           SET TM_STATUS = 'R',
+               UPDATE_DT = SYSDATE
+         WHERE CHAT_ID  = #{chatId}
+    </update>
+
+    <insert id="insertConfirmMessage" parameterType="ChatVO">
+        INSERT INTO TRADEMSG (
+            TM_ID, TM_CHAT_ID, TM_SENDER,
+            TM_CONTENT, TM_CONTENT_TYPE,
+            TM_DATE
+        ) VALUES (
+            SEQ_TM.NEXTVAL,
+            #{tmChatId},
+            #{tmSender},
+            '약속 확인되었습니다.',
+            'SYSTEM',
+            SYSDATE
+        )
+    </insert>
+    
+    <update id="confirmProduct" parameterType="String">
+    	UPDATE products
+		SET prod_status = 'R'
+		WHERE prod_id = (SELECT p.prod_id
+		                 FROM chat c, products p
+		                 WHERE c.chat_prod_id = p.prod_id
+		                 AND c.chat_id = #{chatId})
+    </update>
+
+    <!-- (3) 거래 완료: tmStatus='C' -->
+    <update id="completeAppointment" parameterType="RoomVO">
+        UPDATE CHAT
+           SET TM_STATUS = 'C',
+               UPDATE_DT = SYSDATE
+         WHERE CHAT_ID  = #{chatId}
+    </update>
+
+    <insert id="insertCompleteMessage" parameterType="ChatVO">
+        INSERT INTO TRADEMSG (
+            TM_ID, TM_CHAT_ID, TM_SENDER,
+            TM_CONTENT, TM_CONTENT_TYPE,
+            TM_DATE
+        ) VALUES (
+            SEQ_TM.NEXTVAL,
+            #{tmChatId},
+            #{tmSender},
+            '거래 완료!',
+            'SYSTEM',
+            SYSDATE
+        )
+    </insert>
+    
+    <update id="completeProduct" parameterType="String">
+	   	UPDATE products
+		SET prod_status = 'C'
+		WHERE prod_id = (SELECT p.prod_id
+		                 FROM chat c, products p
+		                 WHERE c.chat_prod_id = p.prod_id
+		                 AND c.chat_id = #{chatId})
+    </update>
+
+    <!-- (4) 후기 작성 -->
+    <insert id="insertReview" parameterType="ReviewVO">
+        INSERT INTO REVIEW (
+            REV_ID, REV_WRITER, REV_TARGET,
+            REV_SCORE, REV_CONTENT, REV_PROD_ID,
+            REV_DATE
+        ) VALUES (
+            SEQ_REVIEW.NEXTVAL,
+            #{revWriter},
+            #{revTarget},
+            #{revScore},
+            #{revContent},
+            #{revProdId},
+            SYSDATE
+        )
+    </insert>
+    
+    <select id="selectReview" parameterType="ReviewVO" resultType="ReviewVO">
+		SELECT REV_ID, REV_WRITER, REV_TARGET, REV_SCORE, REV_CONTENT,
+		       REV_PROD_ID, REV_DATE
+		FROM REVIEW
+		WHERE REV_PROD_ID = #{revProdId}
+		AND REV_WRITER  = #{revWriter}
+	</select>
+    
+</mapper>

@@ -1,0 +1,126 @@
+        /* 기본 스타일 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .unique-wrapper {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .unique-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .unique-header h1 {
+            font-size: 2rem;
+            color: #4CAF50;
+        }
+
+        .unique-sub-header {
+            font-size: 1rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .unique-content {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .unique-input-container {
+            margin-bottom: 20px;
+        }
+
+        .unique-input-container label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .unique-input-container input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .unique-cancel-button,
+        .unique-write-button {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .unique-cancel-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
+
+        .unique-cancel-button:hover {
+            background-color: #e53935;
+        }
+
+        .unique-write-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        .unique-write-button:hover {
+            background-color: #388E3C;
+        }
+
+        /* Summernote 스타일 */
+        .note-editor {
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        .note-toolbar {
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .note-toolbar .note-btn {
+            color: white;
+            background-color: #4CAF50;
+        }
+
+        .note-toolbar .note-btn:hover {
+            background-color: #388E3C;
+        }
+
+        .note-editor .note-placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .note-editor img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }

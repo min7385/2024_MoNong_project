@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.future.blue.push.dao.SubscriptionDAO">
+
+    <!-- 구독 추가 -->
+	<insert id="insertSubscription" useGeneratedKeys="true" keyProperty="notiId" keyColumn="NOTI_ID">
+	    INSERT INTO NOTIFICATIONS (NOTI_ID, MEM_ID, ENDPOINT, P256DH_KEY, AUTH_KEY, CREATE_DT)
+	    VALUES (SEQ_NOTI_ID.NEXTVAL, #{memId}, #{endpoint}, #{p256dhKey}, #{authKey}, SYSDATE)
+	</insert>
+	
+	<!-- 방장이 고객에게  -->
+	<select id="sendToBuyer" resultType="com.future.blue.push.vo.SubscriptionVO" parameterType="ChatVO">
+	   SELECT a.chat_prod_id
+	        , a.chat_seller
+	        , b.*
+       FROM chat a, notifications b
+       WHERE a.chat_buyer = b.mem_id
+       AND   a.chat_id = #{tmChatId}
+	</select>
+	
+	<!-- 고객이 방장에게  -->
+	<select id="sendToSeller" resultType="com.future.blue.push.vo.SubscriptionVO" parameterType="ChatVO">
+	   SELECT   a.chat_prod_id
+			  , a.chat_seller
+			  , b.*
+       FROM chat a, notifications b
+       WHERE a.chat_seller = b.mem_id
+       AND   a.chat_id = #{tmChatId}
+	</select>
+	
+	<!-- 특정 사용자 구독 조회 -->
+	<select id="getSubscriptionByUserId" resultType="com.future.blue.push.vo.SubscriptionVO">
+	    SELECT 
+	        NOTI_ID,
+	        MEM_ID,
+	        ENDPOINT,
+	        P256DH_KEY,
+	        AUTH_KEY,
+	        CREATE_DT
+	    FROM NOTIFICATIONS
+	    WHERE MEM_ID = #{userId}
+	</select>
+	
+	<!-- 모든 구독 조회 -->
+	<select id="getAllSubscriptions" resultType="com.future.blue.push.vo.SubscriptionVO">
+	    SELECT 
+	        NOTI_ID,
+	        MEM_ID,
+	        ENDPOINT,
+	        P256DH_KEY,
+	        AUTH_KEY,
+	        CREATE_DT
+	    FROM NOTIFICATIONS
+	</select>
+	
+	<!-- 구독 제거 -->
+	<delete id="deleteSubscription">
+	    DELETE FROM NOTIFICATIONS
+	    WHERE MEM_ID = #{userId}
+	</delete>
+
+</mapper>

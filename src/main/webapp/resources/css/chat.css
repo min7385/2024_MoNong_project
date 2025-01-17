@@ -1,0 +1,309 @@
+ /* ==================== 별점 모달 (Review Modal) ==================== */
+.modal-content {
+  border-radius: 10px;
+  border: 2px solid #FF9800; /* 오렌지색 테두리 */
+}
+.modal-header {
+  background-color: #FF9800; /* 오렌지색 헤더 */
+  color: #fff;
+  border-bottom: 2px solid #FF9800;
+}
+.modal-footer {
+  border-top: 2px solid #FF9800;
+  background-color: #FFE0B2; /* 연한 오렌지 배경, 필요시 변경 */
+}
+.star-rating {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  gap: 5px;
+}
+.star-rating input[type="radio"] {
+  display: none;
+}
+.star-rating label {
+  font-size: 2rem;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: gold;
+}
+.star-rating input[type="radio"]:checked ~ label {
+  color: gold;
+}
+
+/* ==================== 페이지 전체 스타일 ==================== */
+body {
+  margin: 0; 
+  padding: 0;
+  background-color: #f9f9f9;
+  font-family: sans-serif; /* 폰트 변경 가능 */
+}
+
+/* ===== 상단 상태바 ===== */
+.status-bar {
+  display: flex; 
+  align-items: center; 
+  background-color: #2E7D32; /* 짙은 녹색 */
+  color: #fff;
+  padding: 10px; 
+  margin-bottom: 10px;
+}
+.status-bar button {
+  background: none; 
+  border: none; 
+  color: #fff; 
+  font-size: 1rem; 
+  cursor: pointer;
+  margin-right: 10px;
+}
+.chat-seller {
+  font-weight: bold; 
+  margin-right: 15px;
+}
+.trust-level {
+  margin-left: auto; /* 우측 정렬 */
+  font-size: 0.9rem;
+}
+
+/* ===== 메인 컨테이너 ===== */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+/* ===== 물품 정보 영역 ===== */
+.item-info {
+  display: flex; 
+  align-items: center;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.item-info img {
+  width: 100px; 
+  height: 100px; 
+  border-radius: 8px; 
+  margin-right: 10px;
+  object-fit: cover;
+  pointer-events: none; /* 이미지 다운로드 방지 */
+}
+.item-details {
+  display: flex; 
+  flex-direction: column; 
+  gap: 5px;
+}
+.item-details .title {
+  font-size: 1.2rem; 
+  font-weight: bold;
+}
+
+/* ===== 거래 안내 버튼(약속,완료,후기) ===== */
+.trade-buttons {
+  display: flex; 
+  gap: 10px; 
+  margin-top: 8px;
+}
+.trade-buttons button {
+  border: none; 
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+/* 단일 버튼 색상 예시 */
+#btnAppointment {
+  background-color: #FFCA28; /* 연한 노랑~주황 사이 */
+  color: #333;
+}
+#btnComplete {
+  background-color: #8BC34A; /* 연한 녹색 */
+}
+#btnReview {
+  background-color: #29B6F6; /* 파란색 */
+}
+#btnViewReview, #btnOtherReview {
+  background-color: #26A69A; /* 청록색 */
+  border-radius: 8px;
+  color: #fff;
+}
+
+.disabled {
+  background-color: #ccc !important;
+  cursor: not-allowed !important;
+}
+
+/* ===== 채팅 영역 ===== */
+.chat-container {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
+  min-height: 300px; 
+  overflow-y: auto;
+}
+.chat-container ul {
+  list-style: none; 
+  margin: 0; 
+  padding: 0;
+}
+.chat-container li {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+.chat-box {
+  display: inline-block;
+  background-color: #f1f1f1;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin: 0;
+  line-height: 1.4;
+}
+/* 약속 메시지 스타일 */
+.appointment-message {
+  display: inline-block;
+  background-color: #FFF9C4; /* 밝은 노란색 배경 */
+  color: #333;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+}
+.confirm-button {
+  background-color: #E65100; /* 진한 주황 */
+  color: #fff;
+  border: none; 
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.my-message {
+  text-align: right; /* 오른쪽 정렬 */
+  padding: 10px;
+  border-radius: 8px;
+  margin: 5px 0;
+}
+
+.other-message {
+  text-align: left; /* 왼쪽 정렬 */
+  padding: 10px;
+  border-radius: 8px;
+  margin: 5px 0;
+}
+
+/* ===== 채팅 입력창 ===== */
+.input-container {
+  display: flex;
+  align-items: center;
+  background-color: #f4f4f4;
+  border-radius: 8px;
+  padding: 10px;
+  gap: 5px;
+}
+.input-container input[type="file"] {
+  display: none;
+}
+.input-container input[type="text"] {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 8px 15px;
+  outline: none;
+  font-size: 0.95rem;
+}
+.input-container button {
+  background: none; 
+  border: none; 
+  cursor: pointer;
+}
+.input-container button img {
+  width: 36px; /* 이미지 크기 */
+  height: 36px;
+}
+
+/* ===== 이미지 모달 (가운데 정렬, 다운로드 방지) ===== */
+.image-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.8);
+  justify-content: center; 
+  align-items: center;
+}
+.image-modal .modal-box {
+  position: relative;
+  max-width: 80%;
+  max-height: 80%;
+}
+.image-modal .modal-box img {
+  max-width: 100%;
+  max-height: 100%;
+  border: 2px solid #fff; 
+  border-radius: 8px;
+  pointer-events: none; /* 다운로드 방지 */
+}
+.modal-close-button {
+  position: absolute;
+  top: -40px; 
+  right: 0;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #fff;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.modal-close-button:hover {
+  color: #ddd;
+}
+
+/* ===== 안내 문구(거래완료) ===== */
+/* ★ 배경 제거, 진한 파랑 글씨만 */
+.complete-notice {
+  color: #0D47A1; 
+  text-align: center;
+  font-weight: bold;
+  margin-top: 10px;
+  display: none; /* 처음엔 숨김, JS에서 표시 */
+}
+
+/* ===== 후기 이미 작성됨 표시 ===== */
+#alreadyReviewed {
+  margin-top: 8px; 
+  color: #e91e63; 
+  font-weight: bold; 
+  display: none; /* JS에서 표시 */
+}
+
+/* ===== 반응형 (최대 768px) ===== */
+@media (max-width:768px){
+  .item-info {
+    flex-direction: row;
+  }
+  .item-info img {
+    width: 70px; 
+    height: 70px;
+  }
+  .trade-buttons button {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+  .chat-box {
+    font-size: 0.85rem;
+  }
+}
